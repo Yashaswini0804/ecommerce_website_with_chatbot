@@ -1,0 +1,43 @@
+<?php
+include "admin/dbconnect.php";
+
+if (!empty('$_POST')) {
+    
+    if (isset($_POST['increase'])) 
+    {
+        $cart_id = $_POST['increase'];
+        $quantity = (int)$_POST['quantity'][$cart_id];
+        $quantity++;
+        $sql = "UPDATE cart_tbl SET quantity='$quantity' WHERE cart_id='$cart_id'";
+    } 
+    
+    elseif (isset($_POST['decrease']))
+    {
+        $cart_id = $_POST['decrease'];
+        $quantity = (int)$_POST['quantity'][$cart_id];
+        if ($quantity > 1) 
+        {
+            $quantity--;
+            $sql = "UPDATE cart_tbl SET quantity='$quantity' WHERE cart_id='$cart_id'";
+        } 
+        else 
+        {
+            $sql = "UPDATE cart_tbl SET deleted='1' WHERE cart_id='$cart_id'";
+        }
+    }
+
+    if (isset($sql)) 
+    {
+        if ($conn->query($sql)) 
+        {
+            header("Location: cart.php?status=success");
+            exit;
+        } 
+        else 
+        {
+            header("Location: cart.php?status=error");
+            exit;
+        }
+    }
+}
+?>

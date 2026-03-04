@@ -1,0 +1,94 @@
+Another way of cart page functionality.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .total { font-weight: bold; }
+        .update-btn { background-color: #47aefd; color: white; padding: 5px 10px;  }
+        .remove-btn { background-color: #0e6bf7; color: white; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+    <?php
+    include "user_session_page.php";
+    include "admin/dbconnect.php";
+    if(isset($_GET['status']))
+        {
+            if($_GET['status'] == "success")
+                {
+                    echo "product updated in cart.";
+                }
+            else
+            {
+                echo "error in handling update in cart .";
+            }
+        }
+    $user_id = $session_user_id;
+
+    $cart_query = "SELECT c.cart_id, c.quantity, p.product_name, p.selling_price
+                   FROM cart_tbl c
+                   JOIN product_tbl p ON c.product_id = p.product_id
+                   WHERE c.user_id = '$user_id' AND p.deleted = '0' AND c.deleted = '0' ";
+    $cart_result = $conn->query($cart_query);
+
+    $total = 0;
+    ?>
+
+    <h1>Your Shopping Cart</h1>
+    <a href="user_homepage.php">Continue Shopping</a> | <a href="user_profile.php">Profile</a> | <a href="user_logout.php">Logout</a><br><br>
+
+    <?php if ($cart_result && $cart_result->num_rows > 0): ?>
+        <form action="update_cart.php" method="post" id="check_out">
+            <table>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+                <?php while ($item = $cart_result->fetch_array()): ?>
+                    <?php 
+                    $product_name=$item['product_name'];
+                    $selling_price=$item['selling_price'];
+                    $cart_id=$item['cart_id'];
+                    $quantity=$item['quantity'];
+                    ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($product_name); ?></td>
+                        <td>Rs. <?php echo $selling_price; ?></td>
+                        <td>
+                            <button type="submit" name="increase"  value="<?php echo $cart_id; ?>" class="update-btn">+</button>
+                            <input type="text" id="quantity<?php echo $cart_id; ?>" name="quantity[<?php echo $cart_id; ?>]" value="<?php echo $quantity; ?>" min="1" style="width: 60px;" readonly>
+                            <button type="submit" name="decrease" value="<?php echo $cart_id; ?>" class="remove-btn">-</button>
+                        </td>
+                        <td>Rs. <?php echo $selling_price * $quantity; ?></td>
+                    </tr>
+                    <?php $total += $selling_price * $quantity; ?>
+                <?php endwhile; ?>
+                <tr class="total">
+                    <td colspan="3">Grand Total</td>
+                    <td>Rs. <?php echo $total; ?></td>
+                    <td></td>
+                </tr>
+            </table>
+        <button type="button" onclick="buy_now()">Proceed To Payment</button>
+        </form>
+    <?php else: ?>
+        <p>Your cart is empty. <a href="user_homepage.php">Start shopping</a></p>
+    <?php endif; ?>
+ <?php $conn->close(); ?>
+ <script>
+    function buy_now()
+    {
+       let form = document.getElementById('check_out');
+       form.submit();
+    }
+ </script>
+</body>
+</html>

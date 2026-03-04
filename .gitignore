@@ -1,0 +1,21 @@
+# Ignore image files (they should be managed separately or via a media server)
+images/*
+uploads/*
+!images/.gitkeep
+!uploads/.gitkeep
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.vscode/
+*.swp
+*.swo
+
+# Ignore log files
+*.log
+
+# Ignore temporary files
+*.tmp
+
